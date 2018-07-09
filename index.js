@@ -8,18 +8,8 @@ document.body.appendChild(canvas);
 var ctx = canvas.getContext('2d');
 var under_image, over_image, pixel_image;
 
-function set_to_black(img_data){
-	var length = canvas.width * canvas.height * 4;
-    for (var i = 0; i < length; i += 4) {
-    	img_data[i] = 255;
-    	img_data[i+1] = 255;
-    	img_data[i+2] = 255;
-      	img_data[i+3] = 255;//set alpha to be 1
-    }
-}
 function create_under_image(){
 	var data = ctx.createImageData(canvas.width, canvas.height);
-	set_to_black(data);
 	return data;
 }
 function create_over_image(image){
@@ -55,7 +45,7 @@ function radial_falloff(cx, cy, x, y, radius){
 
 }
 
-function draw(x, y, under_image, over_image){
+function draw_gaussian(x, y, under_image, over_image){
 	var box_width = 200;
 	var radius = box_width/2.0;
 	var cx = x;
@@ -100,7 +90,35 @@ function draw(x, y, under_image, over_image){
 	}
 	draw_under_image(under_image);
 }
+function draw_box(x, y, under_image, over_image){
+	var box_width = 100;
+	var radius = box_width/2.0;
+	var cx = x;
+	var cy = y;
+	x = x - radius; //offset it
+	y = y - radius;
+	var idx = y * (canvas.width * 4) + x * 4;
 
+	for (var i = 0; i < box_width; i++){
+		var new_idx = idx + i * (canvas.width * 4); //add the row
+		for (var j = 0; j < box_width * 4; j+=4){ //4 because 4 pixels at a time are filled
+			var alpha = .1;
+			under_image.data[new_idx+j] = over_image.data[new_idx+j] * alpha + under_image.data[new_idx+j] * (1.0 - alpha);
+			under_image.data[new_idx+1+j] = over_image.data[new_idx+1+j] * alpha + under_image.data[new_idx+1+j] * (1.0-alpha);
+			under_image.data[new_idx+2+j] = over_image.data[new_idx+2+j] * alpha  + under_image.data[new_idx+2+j] * (1.0 - alpha);
+
+			//alpha values, set to 1
+			under_image.data[new_idx+3+j] += 255 * alpha;
+
+			//clamp the under images
+			under_image.data[new_idx+j] = clamp_uint(under_image.data[new_idx+j]);
+			under_image.data[new_idx+1+j] = clamp_uint(under_image.data[new_idx+1+j]);
+			under_image.data[new_idx+2+j] = clamp_uint(under_image.data[new_idx+2+j]);
+			under_image.data[new_idx+3+j] = clamp_uint(under_image.data[new_idx+3+j]);
+		}
+	}
+	draw_under_image(under_image);
+}
 function load_image(path){
 	var pixel_image = new Image();   // Create new img element
 	pixel_image.addEventListener('load', function() {
@@ -123,7 +141,7 @@ canvas.addEventListener( 'mousemove', function( event ) {
 	var mouseX = event.clientX - rect.left;
 	var mouseY = event.clientY - rect.top;
   	if (mousedown){
-  		draw(mouseX, mouseY, under_image, over_image); //hopefully populated?
+  		draw_gaussian(mouseX, mouseY, under_image, over_image); //hopefully populated?
  	}
 });
 
@@ -161,7 +179,7 @@ document.body.onkeyup = function(e){
     	var code = 'img' + num + '.jpg';
     	num--;
     	num = clamp_cycles(num, 1, 200);
-    	pixel_image = load_image('img1.jpg');
+    	pixel_image = load_image(code);
     	draw_under_image(under_image);
     }
 }
