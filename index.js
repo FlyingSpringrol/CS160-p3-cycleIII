@@ -164,6 +164,7 @@ function clamp_cycles(num, min, max){
 var num = 1;
 var folder = 'default/';
 var suffix = '.jpg'
+
 document.body.onkeyup = function(e){
 	if (e.keyCode == 49){
 		//if 1
@@ -180,6 +181,8 @@ document.body.onkeyup = function(e){
 	}
     if (e.keyCode == 39){
     	var code = folder + 'img' + num + suffix;
+    	console.log(code);
+
     	num++;
     	num = clamp_cycles(num, 1, 200); //clamp that shit
     	pixel_image = load_image(code);
