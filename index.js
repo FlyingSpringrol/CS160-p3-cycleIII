@@ -126,7 +126,6 @@ function load_image(path){
 		over_image = create_over_image(pixel_image);
 		draw_under_image(under_image);
 	}, false);
-
 	pixel_image.src = path; // Set source path
 	return pixel_image;
 }
@@ -163,20 +162,31 @@ function clamp_cycles(num, min, max){
 }
 
 var num = 1;
+var folder = 'default/';
+var suffix = '.jpg'
 document.body.onkeyup = function(e){
+	if (e.keyCode == 49){
+		//if 1
+		folder = 'default/';
+		suffix = '.jpg';
+	}
+	if (e.keyCode == 50){
+		folder = 'water/';
+		suffix = '.png';
+	}
 	if (e.keyCode == 32){
 		draw_over_image = !draw_over_image;
 		draw_under_image(under_image);
 	}
     if (e.keyCode == 39){
-    	var code = 'img' + num + '.jpg';
+    	var code = folder + 'img' + num + suffix;
     	num++;
     	num = clamp_cycles(num, 1, 200); //clamp that shit
     	pixel_image = load_image(code);
     	draw_under_image(under_image);
     }
     if (e.keyCode == 37){
-    	var code = 'img' + num + '.jpg';
+    	var code = folder + 'img' + num + suffix;
     	num--;
     	num = clamp_cycles(num, 1, 200);
     	pixel_image = load_image(code);
@@ -185,5 +195,5 @@ document.body.onkeyup = function(e){
 }
 //begin actual exectuion
 under_image = create_under_image();
-pixel_image = load_image('img1.jpg');
+pixel_image = load_image('default/img1.png');
 
