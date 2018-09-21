@@ -198,5 +198,5 @@ document.body.onkeyup = function(e){
 }
 //begin actual exectuion
 under_image = create_under_image();
-pixel_image = load_image('default/img1.png');
+pixel_image = load_image('default/img1.jpg');
 
